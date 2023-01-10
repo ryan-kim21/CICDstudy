@@ -66,6 +66,27 @@ pipeline{
             }
         }
 
+        stage('UploadArtifact'){
+            steps{
+
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '',  //nexusUrl 
+                    groupId: 'QA',                 //top folder name
+                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",  //version
+                    repository: 'vprofile-repo',                        //nexus repo name
+                    credentialsId: 'nexuslogin',                        //nexus login from jenkins
+                    artifacts: [
+                  [artifactId: 'vproapp',
+                  classifier: '',
+                  file: 'target/vprofile-v2.war',           //save name
+                     type: 'war']
+                 ]
+                )
+            }
+        }
+
 
     }
 }
