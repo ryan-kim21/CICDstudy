@@ -6,9 +6,16 @@ pipeline{
     }
 
     stages{
+
+        // stage('Print error'){
+        //     steps{
+        //         sh 'fake comment'
+        //     }
+        // }
+
         stage('Fetch code'){
             steps {
-                git branch: 'vp-rem', url: ''
+                git branch: 'vp-rem', url: 'https://github.com/devopshydclub/vprofile-repo.git'
             }
 
         }
@@ -72,7 +79,7 @@ pipeline{
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '',  //nexusUrl 
+                    nexusUrl: '172.31.1.85:8081',  //nexusUrl 
                     groupId: 'QA',                 //top folder name
                     version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",  //version
                     repository: 'vprofile-repo',                        //nexus repo name
@@ -88,5 +95,14 @@ pipeline{
         }
 
 
+    }
+
+    post {
+        always {
+            echo 'Slack Notifications.'
+            slackSend channel: '#jenkinscicd',
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+        }
     }
 }
